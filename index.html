@@ -8,48 +8,46 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         body { background: #f0f2f5; color: #333; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .container { max-width: 1150px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
         
         .panel { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         h1 { font-size: 1.5rem; margin-bottom: 5px; color: #1e293b; }
         p.subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; }
         
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 14px; }
         label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #334155; }
-        input[type="text"], input[type="date"], input[type="time"], input[type="url"], select, textarea {
+        input[type="text"], input[type="date"], input[type="url"], select, textarea {
             width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;
         }
-        input[type="file"] { font-size: 0.85rem; }
+        input[type="file"] { font-size: 0.85rem; width: 100%; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn-download {
-            width: 100%; padding: 14px; background: #0f172a; color: #fff; border: none;
+            width: 100%; padding: 15px; background: #0f172a; color: #fff; border: none;
             border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px;
             transition: 0.2s;
         }
-        .btn-download:hover { background: #334155; }
+        .btn-download:hover { background: #2563eb; }
         
-        /* Live Preview Frame */
         .preview-box {
-            position: sticky; top: 20px; height: 650px; border: 8px solid #1e293b;
-            border-radius: 28px; overflow: hidden; background: #fff;
+            position: sticky; top: 20px; height: 680px; border: 8px solid #1e293b;
+            border-radius: 28px; overflow: hidden; background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
         iframe { width: 100%; height: 100%; border: none; }
-        .badge { display: inline-block; background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px; }
+        .badge { display: inline-block; background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- PANEL EDITOR (HANYA UNTUK PEMBUAT) -->
     <div class="panel">
         <span class="badge">MODE PEMBUAT (ADMIN)</span>
         <h1>Generator Undangan Digital</h1>
-        <p class="subtitle">Atur desain, foto, dan lagu. Hasil download tidak bisa diubah oleh penerima.</p>
+        <p class="subtitle">Pilih 1 dari 50 motif tema, ganti foto & lagu, lalu download file HTML siap sebar.</p>
 
         <div class="form-group">
-            <label>Pilih Tema & Motif (50 Variasi Desain)</label>
+            <label>Pilih Tema & Motif (50 Pilihan Desain)</label>
             <select id="themeSelect" onchange="updatePreview()"></select>
         </div>
 
@@ -98,19 +96,18 @@
 
         <div class="grid-2">
             <div class="form-group">
-                <label>Upload Foto Sampul / Pasangan</label>
+                <label>Upload Foto Pasangan</label>
                 <input type="file" id="photoInput" accept="image/*" onchange="handlePhoto(event)">
             </div>
             <div class="form-group">
                 <label>Upload Lagu Latar (.MP3)</label>
-                <input type="file" id="audioInput" accept="audio/mp3,audio/*" onchange="handleAudio(event)">
+                <input type="file" id="audioInput" accept="audio/*" onchange="handleAudio(event)">
             </div>
         </div>
 
-        <button class="btn-download" onclick="downloadHTML()">⬇ Download Undangan (.HTML)</button>
+        <button type="button" class="btn-download" onclick="downloadHTML()">⬇ Download Undangan (.HTML)</button>
     </div>
 
-    <!-- PANEL LIVE PREVIEW -->
     <div>
         <div class="preview-box">
             <iframe id="previewFrame"></iframe>
@@ -119,11 +116,9 @@
 </div>
 
 <script>
-    // Default media (Base64 / URL placeholder)
     let uploadedPhoto = "https://unsplash.com";
     let uploadedAudio = "";
 
-    // Generate 50 Tema Bermotif (Kombinasi Palet Warna & Pola CSS SVG)
     const palettes = [
         { name: "Luxury Gold", bg: "#1c1917", card: "#292524", text: "#fafaf9", accent: "#d4af37" },
         { name: "Floral Pastel", bg: "#fff1f2", card: "#ffffff", text: "#4c0519", accent: "#e11d48" },
@@ -138,11 +133,11 @@
     ];
 
     const patterns = [
-        { name: "Motif Geometris", css: "radial-gradient(circle, currentColor 1px, transparent 1px); background-size: 20px 20px;" },
-        { name: "Motif Garis Diagonal", css: "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(128,128,128,0.08) 10px, rgba(128,128,128,0.08) 20px);" },
-        { name: "Motif Batik Kawung", css: "radial-gradient(circle at 100% 50%, transparent 20%, rgba(128,128,128,0.07) 21%, rgba(128,128,128,0.07) 34%, transparent 35%, transparent), radial-gradient(circle at 0% 50%, transparent 20%, rgba(128,128,128,0.07) 21%, rgba(128,128,128,0.07) 34%, transparent 35%, transparent) 0 -50px; background-size: 40px 100px;" },
-        { name: "Motif Anyaman Klasik", css: "linear-gradient(135deg, rgba(128,128,128,0.06) 25%, transparent 25%) -10px 0, linear-gradient(225deg, rgba(128,128,128,0.06) 25%, transparent 25%) -10px 0; background-size: 20px 20px;" },
-        { name: "Motif Polos Elegan", css: "none;" }
+        { name: "Motif Bintik Geometris", css: "background-image: radial-gradient(rgba(128,128,128,0.25) 1.5px, transparent 1.5px); background-size: 20px 20px;" },
+        { name: "Motif Garis Diagonal", css: "background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(128,128,128,0.12) 10px, rgba(128,128,128,0.12) 20px);" },
+        { name: "Motif Batik Kawung", css: "background-image: radial-gradient(circle at 100% 50%, transparent 20%, rgba(128,128,128,0.12) 21%, rgba(128,128,128,0.12) 34%, transparent 35%, transparent), radial-gradient(circle at 0% 50%, transparent 20%, rgba(128,128,128,0.12) 21%, rgba(128,128,128,0.12) 34%, transparent 35%, transparent); background-size: 40px 80px;" },
+        { name: "Motif Anyaman Klasik", css: "background-image: linear-gradient(135deg, rgba(128,128,128,0.1) 25%, transparent 25%), linear-gradient(225deg, rgba(128,128,128,0.1) 25%, transparent 25%); background-size: 24px 24px;" },
+        { name: "Motif Kotak Halus", css: "background-image: linear-gradient(rgba(128,128,128,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(128,128,128,0.1) 1px, transparent 1px); background-size: 22px 22px;" }
     ];
 
     const themes = [];
@@ -151,15 +146,17 @@
         patterns.forEach(pat => {
             themes.push({
                 id: count,
-                label: `Tema #${count}: ${p.name} - ${pat.name}`,
-                ...p,
+                label: "Tema #" + count + ": " + p.name + " (" + pat.name + ")",
+                bg: p.bg,
+                card: p.card,
+                text: p.text,
+                accent: p.accent,
                 pattern: pat.css
             });
             count++;
         });
     });
 
-    // Isi dropdown 50 tema
     const selectEl = document.getElementById("themeSelect");
     themes.forEach((t, idx) => {
         const opt = document.createElement("option");
@@ -168,7 +165,6 @@
         selectEl.appendChild(opt);
     });
 
-    // Konversi Foto ke Base64 agar tertanam di file HTML
     function handlePhoto(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -180,7 +176,6 @@
         reader.readAsDataURL(file);
     }
 
-    // Konversi Lagu MP3 ke Base64 agar tertanam di file HTML
     function handleAudio(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -192,7 +187,6 @@
         reader.readAsDataURL(file);
     }
 
-    // Fungsi Membangun Kode HTML Statis (Terkunci / Tanpa Editor)
     function generateStaticInvitationHTML() {
         const t = themes[document.getElementById("themeSelect").value];
         const groom = document.getElementById("groomName").value;
@@ -204,7 +198,7 @@
         const bank = document.getElementById("bankInfo").value;
         const wa = document.getElementById("waNumber").value;
 
-        return `<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
+        const audioHTML = uploadedAudio 
+            ? '<audio id="bgMusic" loop><source src="' + uploadedAudio + '" type="audio/mp3"></audio><button class="music-btn" onclick="toggleMusic()" id="musicBtn">🎵</button>' 
+            : '';
+
